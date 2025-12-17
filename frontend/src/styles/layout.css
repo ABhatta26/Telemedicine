@@ -1,0 +1,217 @@
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: var(--header-height) calc(100vh - var(--header-height));
+  grid-template-areas:
+    "sidebar header"
+    "sidebar content";
+  height: 100vh;
+  transition: grid-template-columns 200ms ease;
+  background: var(--color-bg);
+}
+
+/* Collapsed state for the whole shell */
+.app-shell.collapsed {
+  grid-template-columns: var(--sidebar-width-collapsed) 1fr;
+}
+
+/* Header */
+.header {
+  grid-area: header;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 16px;
+  background: linear-gradient(90deg, var(--color-surface), rgba(0,0,0,.2));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Sidebar */
+.sidebar {
+  grid-area: sidebar;
+  background: linear-gradient(180deg, var(--color-surface), rgba(0,0,0,.2));
+  backdrop-filter: blur(8px);
+  border-right: 1px solid rgba(255,255,255,0.08);
+  padding: 12px;
+  overflow-y: auto;
+  transition: width 200ms ease;
+  width: var(--sidebar-width);
+}
+.sidebar.collapsed { width: var(--sidebar-width-collapsed); }
+.sidebar .item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  color: var(--color-text);
+}
+.sidebar .item:hover {
+  background: rgba(255,255,255,0.06);
+}
+.sidebar .item span {
+  transition: opacity 200ms ease, visibility 200ms ease;
+}
+.sidebar.collapsed .item span {
+  opacity: 0;
+  visibility: hidden;
+  width: 0;
+  overflow: hidden;
+}
+
+/* Content */
+.content {
+  grid-area: content;
+  padding: 20px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Common UI accents */
+.card {
+  background: var(--color-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+.brand {
+  display: flex; align-items: center; gap: 10px; font-weight: 600;
+  color: var(--color-text);
+}
+.brand .dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 12px var(--color-primary);
+}
+.btn {
+  background: var(--color-primary); color: white; border-radius: 10px; padding: 8px 12px;
+}
+.btn-outline {
+  background: transparent; color: var(--color-primary); border: 1px solid var(--color-primary);
+  border-radius: 10px; padding: 8px 12px;
+}
+.input-field {
+  background: var(--color-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px;
+  width: 100%;
+}
+
+/* Shared form styling */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 320px;
+  padding: 2rem;
+  background-color: var(--color-surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+}
+
+.auth-title {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.auth-input {
+  background: var(--color-surface);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 10px;
+  width: 100%;
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-light);
+}
+
+.auth-submit {
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.auth-submit:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Center both login and signup forms */
+.auth-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* Toggle text under the form */
+.auth-toggle {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.auth-button {
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+/* Extra section under the form */
+.auth-extra {
+  margin-top: 0.75rem;
+  text-align: center;
+}
+
+/* Forgot password link */
+.auth-link {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+.auth-description {
+  font-size: 0.9rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-bottom: 1rem;
+}
+.auth-link {
+  background: none;        /* remove background */
+  border: none;            /* remove border */
+  padding: 0;              /* remove padding */
+  font-weight: bold;       /* make it bold */
+  color: var(--color-primary); /* keep theme color */
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+}
+.auth-link:hover {
+  text-decoration: underline;
+}

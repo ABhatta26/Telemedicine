@@ -1,0 +1,11 @@
+# Requirements placeholder 
+fastapi
+uvicorn
+sqlalchemy
+passlib[bcrypt]>=1.7.4
+pydantic[email]
+bcrypt==3.2.2
+pyyaml
+python-jose[cryptography]>=3.3.0
+python-dotenv
+

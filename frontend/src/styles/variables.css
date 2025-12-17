@@ -1,0 +1,56 @@
+/* =========================
+   Base Variables (Dark Mode)
+   ========================= */
+:root {
+  --color-bg: #0f172a;
+  --color-surface: #111827;
+  --color-text: #e5e7eb;
+  --color-muted: #9ca3af;
+
+  --color-primary: #6366f1; /* default accent */
+  --color-accent: #22d3ee;
+
+  --radius: 12px;
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.35);
+
+  --header-height: 64px;
+  --sidebar-width: 260px;
+  --sidebar-width-collapsed: 72px;
+}
+
+/* =========================
+   Light Mode Overrides
+   ========================= */
+:root.light {
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #111827;
+  --color-muted: #6b7280;
+
+  --color-primary: #4f46e5; /* default accent in light */
+  --color-accent: #06b6d4;
+}
+
+/* =========================
+   Accent Themes (Dark Surfaces)
+   ========================= */
+:root.theme-violet   { --color-primary: #7c3aed; --color-accent: #06b6d4; --color-surface: #1e1b4b; --color-text: #ffffff; }
+:root.theme-rose     { --color-primary: #e11d48; --color-accent: #fb7185; --color-surface: #3f0d1d; --color-text: #ffffff; }
+:root.theme-emerald  { --color-primary: #10b981; --color-accent: #34d399; --color-surface: #064e3b; --color-text: #ffffff; }
+:root.theme-indigo   { --color-primary: #4f46e5; --color-accent: #6366f1; --color-surface: #1e1b4b; --color-text: #ffffff; }
+:root.theme-orange   { --color-primary: #f97316; --color-accent: #fb923c; --color-surface: #431407; --color-text: #ffffff; }
+:root.theme-teal     { --color-primary: #14b8a6; --color-accent: #2dd4bf; --color-surface: #042f2e; --color-text: #ffffff; }
+:root.theme-pink     { --color-primary: #db2777; --color-accent: #f472b6; --color-surface: #3f0d3a; --color-text: #ffffff; }
+:root.theme-lime     { --color-primary: #65a30d; --color-accent: #84cc16; --color-surface: #1a2e05; --color-text: #ffffff; }
+
+/* =========================
+   Accent Themes (Light Surfaces)
+   ========================= */
+:root.light.theme-violet  { --color-surface: #ede9fe; --color-text: #111827; }
+:root.light.theme-rose    { --color-surface: #ffe4e6; --color-text: #111827; }
+:root.light.theme-emerald { --color-surface: #d1fae5; --color-text: #111827; }
+:root.light.theme-indigo  { --color-surface: #e0e7ff; --color-text: #111827; }
+:root.light.theme-orange  { --color-surface: #ffedd5; --color-text: #111827; }
+:root.light.theme-teal    { --color-surface: #ccfbf1; --color-text: #111827; }
+:root.light.theme-pink    { --color-surface: #fce7f3; --color-text: #111827; }
+:root.light.theme-lime    { --color-surface: #ecfccb; --color-text: #111827; }
