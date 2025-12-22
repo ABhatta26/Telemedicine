@@ -1,6 +1,6 @@
 version: 1
 disable_existing_loggers: False
-#testing commit functionality
+#testing commit 
 formatters:
   simple:
     format: "[%(levelname)s] %(name)s: %(message)s"
