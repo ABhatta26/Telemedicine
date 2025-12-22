@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from app.database.session import Base, engine, SessionLocal
 from app.database.models import User
 from app.auth.routes import router as auth_router
+from app.routers import router as api_router
 from app.auth.utils import hash_password
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.logger import setup_logger
@@ -56,6 +57,7 @@ seed_admin()
 
 # Routers
 app.include_router(auth_router)
+app.include_router(api_router)
 
 @app.get("/")
 def health():
