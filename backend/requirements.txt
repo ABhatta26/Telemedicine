@@ -9,3 +9,13 @@ pyyaml
 python-jose[cryptography]>=3.3.0
 python-dotenv
 
+
+fastapi
+uvicorn
+sqlalchemy
+passlib
+pydantic[email]
+python-jose[cryptography]>=3.3.0
+python-dotenv
+pyyaml
+email-validator
