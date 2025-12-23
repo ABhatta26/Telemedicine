@@ -1,10 +1,18 @@
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
+# Newly added
+import os
+from dotenv import load_dotenv
 
-SECRET_KEY = "supersecretkey"   # load from env in production
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY environment variable is not set!")
+ALGORITHM = os.getenv("ALGORITHM", "HS256")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+# Newly added
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
