@@ -33,3 +33,7 @@ telemidicine.db
 
 # Coverage/test
 coverage/
+
+#pyc and cpy files
+*.pyc
+*.cpython
