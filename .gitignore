@@ -34,4 +34,3 @@ telemidicine.db
 # Coverage/test
 coverage/
 *.cpython
-*.pyc
