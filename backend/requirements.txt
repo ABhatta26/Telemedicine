@@ -19,3 +19,5 @@ python-jose[cryptography]>=3.3.0
 python-dotenv
 pyyaml
 email-validator
+ABC
+GHHHH
