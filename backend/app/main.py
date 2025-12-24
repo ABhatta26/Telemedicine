@@ -1,4 +1,3 @@
-#app/main.py
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
@@ -6,16 +5,10 @@ from sqlalchemy.orm import Session
 from app.database.session import Base, engine, SessionLocal
 from app.database.models import User
 from app.auth.routes import router as auth_router
- HEAD
 # Newly added - Removed: from app.auth.utils import hash_password (no longer needed)
 # Newly added
-=======
-from app.routers import router as api_router
-from app.auth.utils import hash_password
->>>>>>> 3cd9f42565f16ff18ea0debf4a86c198eafa7d62
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.logger import setup_logger
-from app.routers import router as api_router
 
 # Load environment variables
 load_dotenv()
@@ -48,7 +41,6 @@ Base.metadata.create_all(bind=engine)
 
 # Routers
 app.include_router(auth_router)
-app.include_router(api_router)
 
 @app.get("/")
 def health():
