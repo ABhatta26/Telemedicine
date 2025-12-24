@@ -26,3 +26,5 @@ pandas
 requests
 flask
 placeholder
+placeholder2
+# Additional dependencies
