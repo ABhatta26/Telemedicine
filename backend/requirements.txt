@@ -8,6 +8,13 @@ bcrypt==3.2.2
 pyyaml
 python-jose[cryptography]>=3.3.0
 python-dotenv
+numpy
+flask
+
+
+
+
+
 
 
 fastapi
@@ -28,3 +35,4 @@ flask
 placeholder
 placeholder2
 # Additional dependencies
+utsa
