@@ -21,3 +21,8 @@ pyyaml
 email-validator
 ABC
 GHHHH
+numpy
+pandas
+requests
+flask
+placeholder
