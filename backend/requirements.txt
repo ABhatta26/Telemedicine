@@ -10,3 +10,22 @@ python-jose[cryptography]>=3.3.0
 python-dotenv
 numpy
 flask
+
+fastapi
+uvicorn
+sqlalchemy
+passlib
+pydantic[email]
+python-jose[cryptography]>=3.3.0
+python-dotenv
+pyyaml
+email-validator
+ABC
+GHHHH
+numpy
+pandas
+requests
+flask
+placeholder
+placeholder2
+# Additional dependencies
