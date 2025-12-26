@@ -11,7 +11,7 @@ import ProfileModal from "../common/ProfileModal";
 const FAMILY_CONFIG_TABLE = [
   { id: "u_001", label: "Saatwik (You)", value: "saatwik_main" },
   { id: "u_002", label: "Subhasis (Father)", value: "subhasis_father" },
-  { id: "u_003", label: "Sanchita (Mother)", value: "sanchita_mother" }
+  { id: "u_003", label: "Sanchita (Mother)", value: "sanchita_mother" },
 ];
 
 export default function Header() {
@@ -40,7 +40,7 @@ export default function Header() {
     <header className="header">
       <div className="brand">
         <span className="dot"></span>
-        <span>Control Center</span>
+        <span>Overview</span>
       </div>
 
       <div className="header-actions">
