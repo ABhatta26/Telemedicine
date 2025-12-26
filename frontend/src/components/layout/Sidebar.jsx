@@ -5,15 +5,15 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   return (
     <aside className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       <button
-        className="btn-outline"
-        style={{ width: "100%", marginBottom: 12 }}
+        className="btn-outline sidebar-toggle-btn"
         onClick={() => setCollapsed(c => !c)}
       >
         {collapsed ? "⮞" : "≡"}
       </button>
-      <nav style={{ display: "grid", gap: 6 }}>
+      <nav className="sidebar-nav">
         <a className="item" href="#/dashboard">🏠 <span>Dashboard</span></a>
-        <a className="item" href="#/notifications">🔔 <span>Notifications</span></a>
+        {/* This link triggers the hash change */}
+        <a className="item" href="#/addfamilymembers">+<span>Add Family Members</span></a>
         <a className="item" href="#/settings">⚙️ <span>Settings</span></a>
         <a className="item" href="#/security">🔒 <span>Security</span></a>
       </nav>
