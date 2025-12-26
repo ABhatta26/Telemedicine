@@ -11,3 +11,31 @@ class User(Base):
     role = Column(String(32), default="user", nullable=False)
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class Doctor(Base):
+    __tablename__ = "doctors"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String(100), nullable=False)
+    specialization = Column(String(50), nullable=False)
+    experience = Column(Integer, nullable=False)
+    consultation_fee = Column(Integer, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class ConfigMaster(Base):
+    __tablename__ = "config_master"
+    id = Column(Integer, primary_key=True, index=True)
+    config_type = Column(String(50), index=True)
+    code = Column(String(50))
+    value = Column(String(100))
+
+
+class FamilyMember(Base):
+    __tablename__ = "family_members"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, nullable=False)
+    name = Column(String(100), nullable=False)
+    relation = Column(String(50), nullable=False)
+    age = Column(Integer)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
