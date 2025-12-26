@@ -11,10 +11,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const username = localStorage.getItem("username");
-    const email = localStorage.getItem("email");
-    const avatarUrl = localStorage.getItem("avatarUrl");
+    // const email = localStorage.getItem("email"); // Optional if you want to store email
+    const role = localStorage.getItem("role"); // <--- RESTORE ROLE
+
     if (token && username) {
-      setUser({ name: username, email, avatarUrl });
+      setUser({ 
+        name: username, 
+        userRole: role || "Patient" // Default to Patient if missing
+      });
     }
   }, []);
 
@@ -32,28 +36,34 @@ export function AuthProvider({ children }) {
 
     const data = await res.json();
 
-    // Save tokens + user info
+    // 1. Save tokens
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
+    
+    // 2. Save User Details
     localStorage.setItem("username", username);
+    
+    // NOTE: Ensure your Backend Login API returns the 'role'. 
+    // If it doesn't, you might need to decode the JWT token to find it.
+    // For now, we assume data.role exists, or we default to "Patient".
+    const role = data.role || data.userRole || "Patient"; 
+    localStorage.setItem("userRole", role); 
 
-    // If your backend returns email or avatar, save them too
-    // For now, we’ll just mock email from username
-    const email = `${username}@example.com`;
-
+    // 3. Update State
     setUser({
       name: username,
-      email,
-      avatarUrl: null, // or a default image path
+      userRole: role,
     });
   };
 
   const logout = () => {
+    // Clear all storage
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("username");
     localStorage.removeItem("email");
-    localStorage.removeItem("avatarUrl");
+    localStorage.removeItem("userRole"); // <--- CLEAR ROLE
+    
     setUser(null);
     window.location.hash = "/login";
   };

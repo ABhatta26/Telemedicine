@@ -1,10 +1,16 @@
 // App.jsx
 import React, { useState, useEffect } from "react";
-import { useAuth } from "./context/AuthContext";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import SignupForm from "./components/auth/SignupForm";
-import ForgotPasswordForm from "./components/auth/ForgotPasswordForm";
+import { useAuth } from "./context/AuthContext.jsx";
+import Login from "./pages/Login.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import SignupForm from "./components/auth/SignupForm.jsx";
+import ForgotPasswordForm from "./components/auth/ForgotPasswordForm.jsx";
+import FamilyComponent from "./components/common/FamilyComponent.jsx";
+import ProfileModal from "./components/common/ProfileModal.jsx";
+import TwoFacto from "./components/common/2Facto.jsx";
+import "./styles/layout.css";
+import "./styles/base.css";
+import "./styles/variables.css";
 
 export default function App() {
   const { user } = useAuth();
@@ -36,7 +42,14 @@ export default function App() {
   switch (route) {
     case "/dashboard":
       return <Dashboard />;
+    case "/addfamilymembers":
+      return <FamilyComponent />;
+    case "/profile":
+      return <ProfileModal />;
+    case "/2facto":
+      return <TwoFacto email={user.email} onSuccess={() => window.location.hash = "/profile"} />;
     default:
       return <Dashboard />;
   }
 }
+
