@@ -48,3 +48,17 @@ def add_family_member(db: Session, user_id: int, data):
 
 def get_family_members(db: Session, user_id: int):
     return db.query(FamilyMember).filter(FamilyMember.user_id == user_id).all()
+
+
+# ------------------------ Health Report ----------------------------
+from sqlalchemy.orm import Session
+from app.database.models import HealthReport
+
+def get_user_health_reports(db: Session, user_id: int):
+    return (
+        db.query(HealthReport)
+        .filter(HealthReport.user_id == user_id)
+        .order_by(HealthReport.uploaded_at.desc())
+        .all()
+    )
+

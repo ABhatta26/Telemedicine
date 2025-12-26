@@ -14,6 +14,8 @@ from app.utils.telemedicine_utils import (
 from app.schemas.doctor import DoctorResponse
 from app.schemas.config import ConfigResponse
 from app.schemas.family import FamilyCreate, FamilyResponse
+from app.schemas.health_report import HealthReportResponse
+from app.utils.telemedicine_utils import get_user_health_reports
 
 router = APIRouter(
     prefix="/api",
@@ -72,3 +74,19 @@ def list_family_members(
     user=Depends(get_current_user),
 ):
     return get_family_members(db, user.id)
+
+
+@router.get("/health-reports",response_model=list[HealthReportResponse]
+)
+def get_health_timeline(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    reports = get_user_health_reports(db, user.id)
+
+    # Convert file_path to public URL
+    for r in reports:
+        r.file_url = f"/uploads/{r.file_path}"
+
+    return reports
+

@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 from .session import Base
+from datetime import datetime
+
 
 class User(Base):
     __tablename__ = "users"
@@ -39,3 +41,16 @@ class FamilyMember(Base):
     relation = Column(String(50), nullable=False)
     age = Column(Integer)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class HealthReport(Base):
+    __tablename__ = "health_reports"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, index=True, nullable=False)
+
+    file_name = Column(String, nullable=False)
+    file_path = Column(String, nullable=False)
+    report_type = Column(String, nullable=True)
+
+    uploaded_at = Column(DateTime, default=datetime.utcnow)
+
