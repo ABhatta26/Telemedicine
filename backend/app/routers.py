@@ -1,7 +1,6 @@
 # Routers registration placeholder 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-
 from app.database.session import get_db
 from app.auth.jwt_handler import get_current_user
 
