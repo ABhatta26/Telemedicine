@@ -1,4 +1,3 @@
-#app/main.py
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
@@ -6,11 +5,10 @@ from sqlalchemy.orm import Session
 from app.database.session import Base, engine, SessionLocal
 from app.database.models import User
 from app.auth.routes import router as auth_router
-from app.routers import router as api_router
-from app.auth.utils import hash_password
+# Newly added - Removed: from app.auth.utils import hash_password (no longer needed)
+# Newly added
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.logger import setup_logger
-from app.routers import router as api_router
 
 # Load environment variables
 load_dotenv()
@@ -25,7 +23,9 @@ logger.info("FastAPI app started")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # React dev server
+    # Newly added - Allow both common Vite dev server ports
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],  # React dev server
+    # Newly added
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,32 +34,13 @@ app.add_middleware(
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-# Seed default admin if missing
-def seed_admin():
-    db: Session = SessionLocal()
-    try:
-        admin = db.query(User).filter(User.username == "admin").first()
-        if not admin:
-            admin = User(
-                username="admin",
-                email="admin@example.com",
-                phone="0000000000",
-                role="admin",
-                password_hash=hash_password("admin123"),
-            )
-            db.add(admin)
-            db.commit()
-            logger.info("Default admin user created")
-        else:
-            logger.debug("Admin user already exists")
-    finally:
-        db.close()
-
-seed_admin()
+# Newly added - Removed hardcoded admin seeding
+# Users must now register through the signup endpoint
+# No hardcoded credentials exist in the system
+# Newly added
 
 # Routers
 app.include_router(auth_router)
-app.include_router(api_router)
 
 @app.get("/")
 def health():

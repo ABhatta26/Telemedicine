@@ -33,5 +33,14 @@ telemidicine.db
 
 # Coverage/test
 coverage/
+HEAD
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.cpython-*
 *.cpython
 *.pyc
+3cd9f42565f16ff18ea0debf4a86c198eafa7d62
