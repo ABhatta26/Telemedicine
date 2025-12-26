@@ -7,7 +7,7 @@ from app.database.models import User
 from app.auth.routes import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.logger import setup_logger
-from app.routers import router as api_router
+from app.routers.routers import router as api_router
 
 
 # Load environment variables
