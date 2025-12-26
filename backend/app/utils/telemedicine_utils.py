@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException
 from app.database.models import Doctor, ConfigMaster, FamilyMember
 
 # ---------------- Doctor Search ----------------
@@ -12,6 +13,15 @@ def search_doctors(db: Session, name: str = None, specialization: str = None):
         query = query.filter(Doctor.specialization.ilike(f"%{specialization}%"))
 
     return query.all()
+
+# ---------------- Doctor Details ----------------
+def get_doctor_by_id(db, doctor_id: int):
+    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+
+    if not doctor:
+        raise HTTPException(status_code=404, detail="Doctor not found")
+
+    return doctor
 
 # ---------------- Config Fetch ----------------
 def get_config_by_type(db: Session, config_type: str):
