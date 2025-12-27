@@ -49,3 +49,9 @@ app.include_router(api_router)
 def health():
     logger.info("Health check endpoint called")
     return {"status": "ok"}
+
+
+from fastapi.staticfiles import StaticFiles
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+

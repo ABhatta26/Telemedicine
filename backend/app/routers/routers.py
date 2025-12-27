@@ -1,8 +1,12 @@
 # Routers registration placeholder 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.auth.jwt_handler import get_current_user
+from app.database.models import FamilyMember
+import os
+import shutil
+
 
 from app.utils.telemedicine_utils import (
     search_doctors,
@@ -74,6 +78,43 @@ def list_family_members(
     user=Depends(get_current_user),
 ):
     return get_family_members(db, user.id)
+
+
+# -------------------------------------------------
+# Upload Family Member Photo
+# -------------------------------------------------
+@router.post("/family-member/{member_id}/photo")
+def upload_family_photo(
+    member_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    member = db.query(FamilyMember).filter(
+        FamilyMember.id == member_id,
+        FamilyMember.user_id == user.id
+    ).first()
+
+    if not member:
+        raise HTTPException(status_code=404, detail="Family member not found")
+
+    upload_dir = "uploads/family"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_path = f"{upload_dir}/{member_id}_{file.filename}"
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    member.photo_path = file_path
+    db.commit()
+
+    return {
+        "message": "Family photo uploaded successfully",
+        "photo_url": f"/{file_path}"
+    }
+
+
 
 # -------------------------------------------------
 # Health Report Timeline
