@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Column, Integer, String, DateTime, Date
 from sqlalchemy.sql import func
 from .session import Base
 from datetime import datetime
-
+from fastapi import UploadFile, File
 
 class User(Base):
     __tablename__ = "users"
@@ -34,13 +34,18 @@ class ConfigMaster(Base):
 
 
 class FamilyMember(Base):
-    __tablename__ = "family_members"
+    _tablename_ = "family_members"
+
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=False)
+
     name = Column(String(100), nullable=False)
     relation = Column(String(50), nullable=False)
-    age = Column(Integer)
-    gender = Column(String(10), nullable=False)
+
+    date_of_birth = Column(Date, nullable=False)
+    emergency_phone = Column(String(20), nullable=True)
+    photo_path = Column(String, nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 class HealthReport(Base):
