@@ -1,11 +1,12 @@
 from pydantic import BaseModel
+from datetime import date
 from typing import Optional
 
 class FamilyCreate(BaseModel):
     name: str
     relation: str
-    age: int
-    gender: str
+    date_of_birth: date
+    emergency_phone: Optional[str] = None
 
 class FamilyResponse(FamilyCreate):
     id: int
