@@ -5,4 +5,4 @@ class ConfigResponse(BaseModel):
     config_value: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
