@@ -48,13 +48,11 @@ def get_doctor_by_id(db, doctor_id: int):
     return doctor
 
 # ---------------- Config Fetch ----------------
-def get_config_by_type(db: Session, config_type: str):
-    return (
-        db.query(ConfigMaster)
-        .filter(ConfigMaster.config_type == config_type)
-        .filter(ConfigMaster.is_active == True)
-        .all()
-    )
+def get_config_by_type(db, config_type):
+    return db.query(ConfigMaster).filter(
+        ConfigMaster.config_type == config_type
+    ).all()
+
 
 # ---------------- Family Members ----------------
 def add_family_member(db: Session, user_id: int, data):
@@ -77,6 +75,24 @@ def get_family_members(db: Session, user_id: int):
 # ------------------------ Health Report ----------------------------
 from sqlalchemy.orm import Session
 from app.database.models import HealthReport
+def add_health_report(
+    db: Session,
+    user_id: int,
+    file_name: str,
+    file_path: str,
+    report_type: str | None = None
+):
+    report = HealthReport(
+        user_id=user_id,
+        file_name=file_name,
+        file_path=file_path,
+        report_type=report_type,
+    )
+    db.add(report)
+    db.commit()
+    db.refresh(report)
+    return report
+
 
 def get_user_health_reports(db: Session, user_id: int):
     return (

@@ -42,6 +42,7 @@ class FamilyMember(Base):
     relation = Column(String(50), nullable=False)
     age = Column(Integer)
     gender = Column(String(10), nullable=False)
+    photo_path = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
 

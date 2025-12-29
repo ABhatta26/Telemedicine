@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 class HealthReportResponse(BaseModel):
     id: int
@@ -10,3 +11,5 @@ class HealthReportResponse(BaseModel):
 
     class Config:
         from_attributes = True
+class HealthReportCreate(BaseModel):
+    report_type: Optional[str] = None

@@ -6,6 +6,7 @@ from app.auth.jwt_handler import get_current_user
 from app.database.models import FamilyMember
 import os
 import shutil
+from fastapi import Form
 
 
 from app.utils.telemedicine_utils import (
@@ -20,6 +21,8 @@ from app.schemas.config import ConfigResponse
 from app.schemas.family import FamilyCreate, FamilyResponse
 from app.schemas.health_report import HealthReportResponse
 from app.utils.telemedicine_utils import get_user_health_reports
+from app.schemas.health_report import HealthReportCreate
+from app.utils.telemedicine_utils import add_health_report
 
 router = APIRouter(
     prefix="/api",
@@ -133,3 +136,33 @@ def get_health_timeline(
 
     return reports
 
+# -------------------------------------------------
+# Upload Health Report
+# -------------------------------------------------
+@router.post("/health-reports", response_model=HealthReportResponse)
+def upload_health_report(
+    file: UploadFile = File(...),
+    report_type: str | None = Form(None), 
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    upload_dir = "uploads/health_reports"
+    os.makedirs(upload_dir, exist_ok=True)
+
+    file_path = f"{upload_dir}/{user.id}_{file.filename}"
+
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    report = add_health_report(
+        db=db,
+        user_id=user.id,
+        file_name=file.filename,
+        file_path=file_path,
+        report_type=report_type,
+    )
+
+    # convert to public URL
+    report.file_url = f"/uploads/health_reports/{user.id}_{file.filename}"
+
+    return report
