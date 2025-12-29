@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./telemidicine.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./telemedicine.db")
 # Newly added
 
 engine = create_engine(

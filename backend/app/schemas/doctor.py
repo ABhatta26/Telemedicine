@@ -2,12 +2,10 @@ from pydantic import BaseModel
 
 class DoctorResponse(BaseModel):
     id: int
-    full_name: str
+    name: str
     specialization: str
-    qualification: str
-    experience_years: int
-    consultation_fee: float
-    
+    experience: int
+    consultation_fee: int
 
     class Config:
         from_attributes = True
