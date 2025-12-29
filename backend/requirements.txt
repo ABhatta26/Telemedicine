@@ -8,4 +8,4 @@ bcrypt==3.2.2
 pyyaml
 python-jose[cryptography]>=3.3.0
 python-dotenv
-python-multiparty
+python-multipart
