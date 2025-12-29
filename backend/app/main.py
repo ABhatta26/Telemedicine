@@ -8,6 +8,7 @@ from app.auth.routes import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.logger import setup_logger
 from app.routers.routers import router as api_router
+from fastapi.staticfiles import StaticFiles
 
 
 # Load environment variables
@@ -41,7 +42,6 @@ Base.metadata.create_all(bind=engine)
 
 # Routers
 app.include_router(auth_router)
-app.include_router(auth_router)
 app.include_router(api_router)
 
 
@@ -51,7 +51,7 @@ def health():
     return {"status": "ok"}
 
 
-from fastapi.staticfiles import StaticFiles
+os.makedirs("uploads", exist_ok=True)
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 

@@ -1,16 +1,40 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException
 from app.database.models import Doctor, ConfigMaster, FamilyMember
+from sqlalchemy import or_
 
 # ---------------- Doctor Search ----------------
-def search_doctors(db: Session, name: str = None, specialization: str = None):
-    query = db.query(Doctor).filter(Doctor.is_active == True)
+def search_doctors(
+    db: Session,
+    name: str | None = None,
+    specialization: str | None = None
+):
+    query = db.query(Doctor)
 
+    # 1️⃣ Search by doctor name (flexible)
     if name:
-        query = query.filter(Doctor.full_name.ilike(f"%{name}%"))
+        query = query.filter(Doctor.name.ilike(f"%{name}%"))
 
+    # 2️⃣ Flexible specialization search
     if specialization:
-        query = query.filter(Doctor.specialization.ilike(f"%{specialization}%"))
+        spec = specialization.strip().lower()
+
+        config = (
+            db.query(ConfigMaster)
+            .filter(ConfigMaster.config_type == "SPECIALIZATION")
+            .filter(
+                or_(
+                    ConfigMaster.code.ilike(f"%{spec}%"),
+                    ConfigMaster.value.ilike(f"%{spec}%")
+                )
+            )
+            .first()
+        )
+
+        if not config:
+            return []  # no matching specialization
+
+        query = query.filter(Doctor.specialization == config.code)
 
     return query.all()
 
