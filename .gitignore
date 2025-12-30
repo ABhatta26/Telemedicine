@@ -24,7 +24,7 @@ pnpm-debug.log*
 
 # OS files
 .DS_Store
-telemidicine.db
+telemedicine.db
 
 # IDE/editor files
 .vscode/
@@ -44,3 +44,5 @@ __pycache__/
 *.cpython
 *.pyc
 3cd9f42565f16ff18ea0debf4a86c198eafa7d62
+
+
