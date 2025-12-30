@@ -6,7 +6,6 @@ import "../../styles/base.css";
 // 1. MOCK DATA (Static data removed for Doctors)
 // ==========================================
 
-// Keep these as they are not part of the API yet
 const NEXT_APPT = {
   id: 101,
   doctor: "Dr. Emily Stone",
@@ -86,6 +85,7 @@ export default function PatientDashboard() {
   
   // --- INTEGRATION STATE CHANGES ---
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState("name"); // 'name' | 'specialization' | 'id'
   const [doctorsList, setDoctorsList] = useState([]); // Stores API data
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -96,11 +96,15 @@ export default function PatientDashboard() {
     setError(null);
     try {
       // Assuming your FastAPI is running on localhost:8000
-      // We pass the searchQuery to the 'name' parameter of your API
       const baseUrl = "http://localhost:8000/api/doctors/search";
+      
+      // LOGIC: Dynamically construct URL based on selected search type
+      // e.g., ?specialization=cardio OR ?name=john OR ?id=101
       const url = searchQuery 
-        ? `${baseUrl}?name=${encodeURIComponent(searchQuery)}` 
+        ? `${baseUrl}?${searchType}=${encodeURIComponent(searchQuery)}` 
         : baseUrl;
+
+      console.log("Fetching:", url); // Debug: Check console to see exact URL sent
 
       const response = await fetch(url);
       
@@ -109,7 +113,10 @@ export default function PatientDashboard() {
       }
 
       const data = await response.json();
-      setDoctorsList(data);
+      
+      // Safety check: Ensure we always set an array, even if API returns null/undefined
+      setDoctorsList(Array.isArray(data) ? data : []);
+      
     } catch (err) {
       console.error(err);
       setError("Could not load doctors. Is the backend running?");
@@ -162,18 +169,35 @@ export default function PatientDashboard() {
             <div className="card p-20">
               <h3 className="mt-0">Search Specialists</h3>
               
-              <div className="flex-center">
+              {/* UPDATED: Search Controls with Dropdown */}
+              <div className="flex-center gap-10" style={{ gap: '10px' }}>
+                
+                {/* 1. Filter Type Dropdown */}
+                <select 
+                  value={searchType}
+                  onChange={(e) => setSearchType(e.target.value)}
+                  className="input-field"
+                  style={{ width: 'auto', flexShrink: 0, cursor: 'pointer' }}
+                >
+                  <option value="name">Name</option>
+                  <option value="specialization">Specialization</option>
+                  <option value="id">Doctor ID</option>
+                </select>
+
+                {/* 2. Text Input */}
                 <input 
                   type="text" 
-                  placeholder="Search by name..." 
+                  placeholder={`Search by ${searchType}...`} 
                   className="input-field" 
                   value={searchQuery} 
                   onChange={(e) => setSearchQuery(e.target.value)}
                   // Allow pressing 'Enter' to search
                   onKeyDown={(e) => e.key === 'Enter' && fetchDoctors()}
                 />
+
+                {/* 3. Search Button */}
                 <button className="btn" onClick={fetchDoctors} disabled={isLoading}>
-                  {isLoading ? "Loading..." : "Search"}
+                  {isLoading ? "..." : "Search"}
                 </button>
               </div>
 
@@ -188,11 +212,13 @@ export default function PatientDashboard() {
                   <div key={doc.id} className="doctor-result-item">
                     <div>
                       <strong>{doc.name}</strong>
-                      {/* Note: Your API likely returns 'specialization', UI used 'specialty' */}
+                      {/* Handle API naming differences */}
                       <div className="small color-primary">
-                        {doc.specialization || doc.specialty}
+                        {doc.specialization || doc.specialty || "Specialist"}
                       </div>
-                      {doc.hospital && <div className="small color-muted">{doc.hospital}</div>}
+                      <div className="small color-muted">
+                        ID: {doc.id} {doc.hospital ? `• ${doc.hospital}` : ""}
+                      </div>
                     </div>
                     <button className="btn-outline small">Book Visit</button>
                   </div>
