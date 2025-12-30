@@ -1,3 +1,5 @@
+#app/main.py
+
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
@@ -54,4 +56,3 @@ def health():
 os.makedirs("uploads", exist_ok=True)
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
-

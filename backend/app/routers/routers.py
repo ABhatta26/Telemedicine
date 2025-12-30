@@ -1,3 +1,5 @@
+#app/routers/routers.py
+
 # Routers registration placeholder 
 from fastapi import APIRouter, Depends, Query, UploadFile, File, HTTPException
 from sqlalchemy.orm import Session
