@@ -10,6 +10,9 @@ const ProfilePage = () => {
   // State to toggle between View and Edit modes
   const [isEditing, setIsEditing] = useState(false);
 
+  // State for the uploaded file
+  const [reportFile, setReportFile] = useState(null);
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -52,20 +55,25 @@ const ProfilePage = () => {
     }
   };
 
+  // New handler for Health Report
+  const handleReportUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        setReportFile(file);
+        // Simulate API upload
+        console.log("Uploading Health Report:", file.name);
+        alert(`Health Report "${file.name}" uploaded successfully!`);
+    }
+  };
+
   const handleSave = (e) => {
     e.preventDefault();
-    // API Call to update profile would go here
     console.log("Saving Profile:", formData);
-    
-    // UI Feedback
     alert("Profile Updated Successfully!");
-    
-    // Switch back to view mode
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    // Reset data to original and turn off edit mode
     resetForm();
     setIsEditing(false);
   };
@@ -76,45 +84,47 @@ const ProfilePage = () => {
 
   return (
     <Layout>
-      <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px" }}>
+      <div className="profile-container">
           
           {/* Page Header */}
-          <div className="page-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h1 className="page-title" style={{ margin: 0 }}>Profile Settings</h1>
+          <div className="page-header-row">
+            <h1 className="page-title">Profile Settings</h1>
             
-            {/* Edit Button (Visible only when NOT editing) */}
             {!isEditing && (
               <button 
                 onClick={() => setIsEditing(true)} 
-                className="btn"
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                className="btn flex-center"
               >
-                <span>✏️</span> Edit Profile
+                <span>✏️</span> <span className="hide-mobile">Edit Profile</span>
               </button>
             )}
           </div>
 
           {/* Page Content Card */}
-          <div className="card page-content">
-            <form onSubmit={handle2Facto} className="page-form">
+          <div className="card p-24">
+            <form onSubmit={handle2Facto} className="profile-form-layout">
               
               {/* Left Col: Photo & Avatar */}
-              <div className="photo-section">
+              <div className="profile-photo-col">
                 <div className="large-profile-preview">
                   {previewImage ? (
                     <img src={previewImage} alt="Profile" className="profile-img-cover" />
                   ) : (
-                    <div className="profile-placeholder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem' }}>
+                    <div className="profile-placeholder-icon">
                       👤
                     </div>
                   )}
                 </div>
                 
-                {/* Show Upload Button only in Edit Mode */}
                 {isEditing && (
-                  <label className="btn-outline" style={{ cursor: "pointer", fontSize: "0.85rem" }}>
+                  <label className="btn-outline" style={{ cursor: "pointer" }}>
                     Change Photo
-                    <input type="file" accept="image/*" className="hidden-input" onChange={handlePhotoUpload} />
+                    <input 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden-input" 
+                        onChange={handlePhotoUpload} 
+                    />
                   </label>
                 )}
                 
@@ -125,7 +135,7 @@ const ProfilePage = () => {
               </div>
 
               {/* Right Col: Personal Details */}
-              <div className="details-section">
+              <div className="profile-details-col">
                 <h3 className="section-title">Personal Information</h3>
                 
                 <div className="form-grid-2">
@@ -137,7 +147,7 @@ const ProfilePage = () => {
                       value={formData.name} 
                       onChange={handleChange} 
                       className="input-field"
-                      disabled={!isEditing} // Disabled when not editing
+                      disabled={!isEditing} 
                     />
                   </div>
                   <div>
@@ -153,21 +163,20 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                <div>
+                <div className="input-group">
                   <label className="form-label">Email Address</label>
                   <input 
                     name="email" 
                     type="email" 
                     value={formData.email} 
                     onChange={handleChange} 
-                    className="input-field" 
-                    disabled={true} // Email always disabled (usually requires separate flow)
-                    style={{ opacity: 0.6, cursor: "not-allowed" }}
+                    className="input-field input-disabled" 
+                    disabled={true} 
                   />
                   <span className="field-note">Email address cannot be changed for security reasons.</span>
                 </div>
 
-                <div>
+                <div className="input-group">
                   <label className="form-label">Address</label>
                   <input 
                     name="address" 
@@ -180,9 +189,40 @@ const ProfilePage = () => {
                   />
                 </div>
 
+                {/* --- Medical Records Section --- */}
+                <div className="medical-section">
+                    <h3 className="section-title">Medical Records</h3>
+                    
+                    <div className="medical-actions-row">
+                        <label className="btn-health-upload">
+                            <span>📄</span> Upload Health Report
+                            <input 
+                                type="file" 
+                                accept=".pdf,.doc,.docx,.jpg,.png" 
+                                className="hidden-input"
+                                onChange={handleReportUpload}
+                            />
+                        </label>
+
+                        {/* Success Feedback */}
+                        {reportFile && (
+                            <div className="upload-success">
+                                <span>✅</span> 
+                                <strong className="file-name-truncate">
+                                  {reportFile.name}
+                                </strong> 
+                                <span>attached</span>
+                            </div>
+                        )}
+                    </div>
+                    <p className="photo-hint text-left">
+                        Upload PDF, DOCX, or Images of your prescriptions or reports.
+                    </p>
+                </div>
+
                 {/* Actions (Visible only when Editing) */}
                 {isEditing && (
-                  <div className="form-actions">
+                  <div className="form-actions-row">
                     <button type="button" onClick={handleCancel} className="btn-outline">Cancel</button>
                     <button type="submit" onClick={handle2Facto} className="btn">Save Changes</button>
                   </div>

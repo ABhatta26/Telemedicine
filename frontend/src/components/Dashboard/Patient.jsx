@@ -3,20 +3,15 @@ import "../../styles/layout.css";
 import "../../styles/base.css";
 
 // ==========================================
-// 1. MOCK DATA
+// 1. MOCK DATA (Static data removed for Doctors)
 // ==========================================
-const DOCTORS_TABLE = [
-  { id: 1, name: "Dr. Emily Stone", specialty: "Cardiologist", hospital: "City Heart Center" },
-  { id: 2, name: "Dr. Mark Smith", specialty: "Dentist", hospital: "Bright Smile Clinic" },
-  { id: 3, name: "Dr. Susan Lee", specialty: "Dermatologist", hospital: "Skin & Glow" },
-  { id: 4, name: "Dr. James Doe", specialty: "General Physician", hospital: "Community Health" },
-];
 
+// Keep these as they are not part of the API yet
 const NEXT_APPT = {
   id: 101,
   doctor: "Dr. Emily Stone",
   specialty: "Cardiologist",
-  time: new Date(new Date().getTime() + 5 * 60000).toISOString(), 
+  time: new Date(new Date().getTime() + 5 * 60000).toISOString(),
   status: "Confirmed",
   meetingLink: "https://meet.google.com/jem-nijr-fkg",
 };
@@ -49,7 +44,7 @@ const NextAppointmentCard = ({ appointment }) => {
       setTimeLeft(diffInMinutes > 0 ? `Starts in ${Math.ceil(diffInMinutes)} mins` : "In Progress");
     };
     checkTime();
-    const interval = setInterval(checkTime, 60000); 
+    const interval = setInterval(checkTime, 60000);
     return () => clearInterval(interval);
   }, [appointment]);
 
@@ -73,7 +68,7 @@ const NextAppointmentCard = ({ appointment }) => {
       </div>
       <div className="mt-10">
         {canJoin ? (
-          <a href={appointment.meetingLink} target="_blank" className="btn w-full block text-center no-decoration">Join Video Call</a>
+          <a href={appointment.meetingLink} target="_blank" rel="noreferrer" className="btn w-full block text-center no-decoration">Join Video Call</a>
         ) : (
           <button className="btn w-full opacity-50 cursor-not-allowed" disabled>Join Enabled 10m Before</button>
         )}
@@ -88,20 +83,48 @@ const NextAppointmentCard = ({ appointment }) => {
 
 export default function PatientDashboard() {
   const [currentView, setCurrentView] = useState("overview"); // overview | doctors | support
+  
+  // --- INTEGRATION STATE CHANGES ---
   const [searchQuery, setSearchQuery] = useState("");
-  const [filteredDoctors, setFilteredDoctors] = useState([]);
+  const [doctorsList, setDoctorsList] = useState([]); // Stores API data
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const handleSearch = (e) => {
-    const query = e.target.value.toLowerCase();
-    setSearchQuery(query);
-    if (query.trim() === "") setFilteredDoctors([]);
-    else {
-      const results = DOCTORS_TABLE.filter(doc => 
-        doc.name.toLowerCase().includes(query) || doc.specialty.toLowerCase().includes(query)
-      );
-      setFilteredDoctors(results);
+  // --- API INTEGRATION FUNCTION ---
+  const fetchDoctors = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      // Assuming your FastAPI is running on localhost:8000
+      // We pass the searchQuery to the 'name' parameter of your API
+      const baseUrl = "http://localhost:8000/api/doctors/search";
+      const url = searchQuery 
+        ? `${baseUrl}?name=${encodeURIComponent(searchQuery)}` 
+        : baseUrl;
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error("Failed to connect to server");
+      }
+
+      const data = await response.json();
+      setDoctorsList(data);
+    } catch (err) {
+      console.error(err);
+      setError("Could not load doctors. Is the backend running?");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  // Optional: Trigger empty search on load so list isn't empty initially
+  useEffect(() => {
+    if(currentView === 'doctors' && doctorsList.length === 0) {
+        fetchDoctors();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentView]);
 
   return (
     <div className="dashboard-stack">
@@ -134,19 +157,42 @@ export default function PatientDashboard() {
             </>
           )}
 
+          {/* --- INTEGRATED DOCTORS VIEW --- */}
           {currentView === "doctors" && (
             <div className="card p-20">
               <h3 className="mt-0">Search Specialists</h3>
+              
               <div className="flex-center">
-                <input type="text" placeholder="Name or Specialization..." className="input-field" value={searchQuery} onChange={handleSearch} />
-                <button className="btn">Search</button>
+                <input 
+                  type="text" 
+                  placeholder="Search by name..." 
+                  className="input-field" 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  // Allow pressing 'Enter' to search
+                  onKeyDown={(e) => e.key === 'Enter' && fetchDoctors()}
+                />
+                <button className="btn" onClick={fetchDoctors} disabled={isLoading}>
+                  {isLoading ? "Loading..." : "Search"}
+                </button>
               </div>
+
+              {error && <div className="mt-15 color-crimson small">{error}</div>}
+
               <div className="mt-15 column-flex">
-                {filteredDoctors.map(doc => (
+                {!isLoading && doctorsList.length === 0 && !error && (
+                   <p className="color-muted text-center">No doctors found.</p>
+                )}
+
+                {doctorsList.map(doc => (
                   <div key={doc.id} className="doctor-result-item">
                     <div>
                       <strong>{doc.name}</strong>
-                      <div className="small color-primary">{doc.specialty}</div>
+                      {/* Note: Your API likely returns 'specialization', UI used 'specialty' */}
+                      <div className="small color-primary">
+                        {doc.specialization || doc.specialty}
+                      </div>
+                      {doc.hospital && <div className="small color-muted">{doc.hospital}</div>}
                     </div>
                     <button className="btn-outline small">Book Visit</button>
                   </div>
@@ -203,4 +249,3 @@ export default function PatientDashboard() {
     </div>
   );
 }
-
