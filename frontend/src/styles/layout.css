@@ -1763,3 +1763,17 @@
     display: none;
   }
 }
+.family-card-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.page-heading-bordered {
+  margin-top: 0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* var(--glass-border) fallback */
+  padding-bottom: 15px;
+}
+.photo-upload-label {
+  cursor: pointer;
+  font-size: 0.8rem;
+}
