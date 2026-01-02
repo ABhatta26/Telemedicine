@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import "../../styles/layout.css";
 import "../../styles/base.css";
 
 // ==========================================
-// 1. MOCK DATA (Static data removed for Doctors)
+// 1. MOCK DATA 
 // ==========================================
 
 const NEXT_APPT = {
@@ -77,16 +77,17 @@ const NextAppointmentCard = ({ appointment }) => {
 };
 
 // ==========================================
-// 3. MAIN DASHBOARD SPA
+// 3. MAIN DASHBOARD COMPONENT
 // ==========================================
 
 export default function PatientDashboard() {
   const [currentView, setCurrentView] = useState("overview"); // overview | doctors | support
   
-  // --- INTEGRATION STATE CHANGES ---
+  // --- INTEGRATION STATE ---
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState("name"); // 'name' | 'specialization' | 'id'
-  const [doctorsList, setDoctorsList] = useState([]); // Stores API data
+  const [allDoctors, setAllDoctors] = useState([]);      // Master list from API
+  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -95,27 +96,16 @@ export default function PatientDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      // Assuming your FastAPI is running on localhost:8000
-      const baseUrl = "http://localhost:8000/api/doctors/search";
-      
-      // LOGIC: Dynamically construct URL based on selected search type
-      // e.g., ?specialization=cardio OR ?name=john OR ?id=101
-      const url = searchQuery 
-        ? `${baseUrl}?${searchType}=${encodeURIComponent(searchQuery)}` 
-        : baseUrl;
-
-      console.log("Fetching:", url); // Debug: Check console to see exact URL sent
-
-      const response = await fetch(url);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/doctors/search`);
       
       if (!response.ok) {
         throw new Error("Failed to connect to server");
       }
 
       const data = await response.json();
+      const safeData = Array.isArray(data) ? data : [];
       
-      // Safety check: Ensure we always set an array, even if API returns null/undefined
-      setDoctorsList(Array.isArray(data) ? data : []);
+      setAllDoctors(safeData);
       
     } catch (err) {
       console.error(err);
@@ -125,14 +115,43 @@ export default function PatientDashboard() {
     }
   };
 
-  // Optional: Trigger empty search on load so list isn't empty initially
+  // --- EFFECT: Load Data on View Switch ---
   useEffect(() => {
-    if(currentView === 'doctors' && doctorsList.length === 0) {
+    // Only fetch if we haven't loaded data yet to save bandwidth
+    if(currentView === 'doctors' && allDoctors.length === 0) {
         fetchDoctors();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentView]);
+  }, [currentView, allDoctors.length]);
 
+  // --- INSTANT FILTERING LOGIC (Using useMemo) ---
+  const filteredDoctors = useMemo(() => {
+    // CHANGE 1: Return empty array [] if no search query
+    // This ensures results are hidden until the user types
+    if (!searchQuery) return [];
+
+    const lowerQuery = searchQuery.toLowerCase().trim();
+
+    return allDoctors.filter(doc => {
+      // Safely access properties to prevent crashes on missing data
+      const name = (doc.name || "").toLowerCase();
+      const specialization = (doc.specialization || doc.specialty || "").toLowerCase();
+      const id = String(doc.id || "");
+
+      if (searchType === 'name') {
+        return name.includes(lowerQuery);
+      } 
+      else if (searchType === 'specialization') {
+        return specialization.includes(lowerQuery);
+      } 
+      else if (searchType === 'id') {
+        return id.includes(lowerQuery);
+      }
+      return false;
+    });
+  }, [searchQuery, searchType, allDoctors]);
+
+
+  // --- RENDER ---
   return (
     <div className="dashboard-stack">
       {/* SPA NAVIGATION */}
@@ -146,6 +165,7 @@ export default function PatientDashboard() {
         {/* LEFT MAIN CONTENT */}
         <div className="column-flex">
           
+          {/* VIEW: OVERVIEW */}
           {currentView === "overview" && (
             <>
               <NextAppointmentCard appointment={NEXT_APPT} />
@@ -164,15 +184,19 @@ export default function PatientDashboard() {
             </>
           )}
 
-          {/* --- INTEGRATED DOCTORS VIEW --- */}
+          {/* VIEW: DOCTORS SEARCH */}
           {currentView === "doctors" && (
             <div className="card p-20">
-              <h3 className="mt-0">Search Specialists</h3>
+              <div className="flex-between">
+                <h3 className="mt-0">Search Specialists</h3>
+                {/* Only show count if user has searched */}
+                {searchQuery && (
+                    <span className="small color-muted">{filteredDoctors.length} found</span>
+                )}
+              </div>
               
-              {/* UPDATED: Search Controls with Dropdown */}
+              {/* SEARCH CONTROLS */}
               <div className="flex-center gap-10" style={{ gap: '10px' }}>
-                
-                {/* 1. Filter Type Dropdown */}
                 <select 
                   value={searchType}
                   onChange={(e) => setSearchType(e.target.value)}
@@ -184,37 +208,43 @@ export default function PatientDashboard() {
                   <option value="id">Doctor ID</option>
                 </select>
 
-                {/* 2. Text Input */}
                 <input 
                   type="text" 
-                  placeholder={`Search by ${searchType}...`} 
+                  placeholder={`Filter by ${searchType}...`} 
                   className="input-field" 
                   value={searchQuery} 
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  // Allow pressing 'Enter' to search
-                  onKeyDown={(e) => e.key === 'Enter' && fetchDoctors()}
+                  autoFocus
                 />
-
-                {/* 3. Search Button */}
-                <button className="btn" onClick={fetchDoctors} disabled={isLoading}>
-                  {isLoading ? "..." : "Search"}
-                </button>
               </div>
 
               {error && <div className="mt-15 color-crimson small">{error}</div>}
 
+              {/* RESULTS LIST */}
               <div className="mt-15 column-flex">
-                {!isLoading && doctorsList.length === 0 && !error && (
-                   <p className="color-muted text-center">No doctors found.</p>
+                {isLoading && <p className="text-center small">Loading directory...</p>}
+
+                {/* CHANGE 2: Show prompt if user hasn't typed anything yet */}
+                {!isLoading && !searchQuery && (
+                    <div className="text-center p-20">
+                        <p className="color-muted">Start typing to search for doctors...</p>
+                    </div>
                 )}
 
-                {doctorsList.map(doc => (
+                {/* CHANGE 3: Only show "No Match" if user HAS typed something and found nothing */}
+                {!isLoading && searchQuery && filteredDoctors.length === 0 && !error && (
+                    <div className="text-center p-20 border-dashed">
+                        <p className="color-muted">No doctors match "{searchQuery}"</p>
+                        <button className="btn-outline small" onClick={() => setSearchQuery("")}>Clear Search</button>
+                    </div>
+                )}
+
+                {filteredDoctors.map(doc => (
                   <div key={doc.id} className="doctor-result-item">
                     <div>
                       <strong>{doc.name}</strong>
-                      {/* Handle API naming differences */}
                       <div className="small color-primary">
-                        {doc.specialization || doc.specialty || "Specialist"}
+                        {doc.specialization || doc.specialty || "General Specialist"}
                       </div>
                       <div className="small color-muted">
                         ID: {doc.id} {doc.hospital ? `• ${doc.hospital}` : ""}
@@ -227,6 +257,7 @@ export default function PatientDashboard() {
             </div>
           )}
 
+          {/* VIEW: SUPPORT */}
           {currentView === "support" && (
             <div className="card p-20">
               <h3 className="mt-0">Active Tickets</h3>

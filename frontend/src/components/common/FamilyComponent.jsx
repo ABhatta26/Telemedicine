@@ -5,19 +5,17 @@ import Layout from "../layout/Layout";
 
 const FamilyPage = () => {
   const [loading, setLoading] = useState(false);
-  
-  // State for Health Report
   const [reportFile, setReportFile] = useState(null);
+  const [previewImage, setPreviewImage] = useState("");
 
   const [familyData, setFamilyData] = useState({
     name: "", 
     relationship: "Child", 
+    gender: "Male", // 1. Added default gender
     dob: "", 
     phone: "", 
     avatar: null
   });
-  
-  const [previewImage, setPreviewImage] = useState("");
 
   const handleChange = (e) => {
     setFamilyData({ ...familyData, [e.target.name]: e.target.value });
@@ -32,13 +30,10 @@ const FamilyPage = () => {
     }
   };
 
-  // Handler for Health Report Upload
   const handleReportUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
         setReportFile(file);
-        // In a real app, you might upload this to S3 immediately or append to FormData below
-        console.log("Selected Health Report:", file.name);
     }
   };
 
@@ -49,24 +44,25 @@ const FamilyPage = () => {
     const token = localStorage.getItem("token") || localStorage.getItem("access_token"); 
 
     if (!token) {
-      alert("Authentication Error: No login token found. Please log in again.");
+      alert("Authentication Error: You are not logged in.");
       setLoading(false);
       return;
     }
 
-    // Prepare the data
-    // Note: If you are sending files (avatar/reportFile), you usually need `new FormData()` 
-    // instead of JSON. For this UI demo, we kept JSON payload structure.
+    // 2. Prepare Payload (Including Gender)
     const payload = {
       name: familyData.name,
-      relationship: familyData.relationship,
-      dob: familyData.dob,
+      relation: familyData.relationship, 
+      gender: familyData.gender, // <--- Sending Gender now
+      dob: familyData.dob, 
       phone: familyData.phone || null,
-      healthReportName: reportFile ? reportFile.name : null // Example of sending report metadata
+      health_report_name: reportFile ? reportFile.name : null 
     };
 
     try {
-      const response = await fetch("http://localhost:8000/api/family-member", {
+      const apiUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+      
+      const response = await fetch(`${apiUrl}/api/family-member`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,25 +72,23 @@ const FamilyPage = () => {
       });
 
       if (response.ok) {
-        const data = await response.json();
-        console.log("Success:", data);
-        
-        let successMsg = `Successfully added ${familyData.name}!`;
-        if (reportFile) successMsg += ` (Health Report Attached)`;
-        
-        alert(successMsg);
-        window.location.hash = "/dashboard";
+        alert(`Successfully added ${familyData.name}!`);
+        window.location.href = "/dashboard"; 
       } else {
-        if (response.status === 401) {
-            alert("Your session has expired. Please log out and log in again.");
-        } else {
-            const errorData = await response.json();
-            alert(`Error: ${errorData.detail || "Failed to add member"}`);
+        const errorData = await response.json();
+        
+        let errorMsg = "Failed to add member";
+        if (response.status === 422 && Array.isArray(errorData.detail)) {
+             errorMsg = errorData.detail.map(err => `${err.loc[1]}: ${err.msg}`).join("\n");
+        } else if (errorData.detail) {
+             errorMsg = errorData.detail;
         }
+        
+        alert(`Error:\n${errorMsg}`);
       }
     } catch (error) {
       console.error("Network Error:", error);
-      alert("Could not connect to the server. Is your backend running?");
+      alert("Network Error: Could not connect to backend.");
     } finally {
       setLoading(false);
     }
@@ -103,9 +97,7 @@ const FamilyPage = () => {
   return (
     <Layout>
     <div className="card page-content family-card-container">
-      <h2 className="page-heading-bordered">
-        Add New Family Member
-      </h2>
+      <h2 className="page-heading-bordered">Add New Family Member</h2>
       
       <form onSubmit={handleSave} className="page-form">
         {/* Photo Section */}
@@ -138,6 +130,7 @@ const FamilyPage = () => {
             />
           </div>
 
+          {/* 3. Updated Grid to include Gender */}
           <div className="form-grid-2">
             <div>
               <label className="form-label">Relationship</label>
@@ -154,7 +147,24 @@ const FamilyPage = () => {
                 <option value="Other">Other</option>
               </select>
             </div>
+            
             <div>
+               <label className="form-label">Gender</label>
+               <select 
+                 name="gender" 
+                 value={familyData.gender} 
+                 onChange={handleChange} 
+                 className="input-field select-field"
+               >
+                 <option value="Male">Male</option>
+                 <option value="Female">Female</option>
+                 <option value="Other">Other</option>
+               </select>
+            </div>
+          </div>
+
+          <div className="form-grid-2">
+             <div>
               <label className="form-label">Date of Birth</label>
               <input 
                 name="dob" 
@@ -165,25 +175,21 @@ const FamilyPage = () => {
                 required 
               />
             </div>
+            <div>
+                <label className="form-label">Emergency Phone</label>
+                <input 
+                    name="phone" 
+                    type="tel" 
+                    placeholder="+1 234 567 890" 
+                    value={familyData.phone} 
+                    onChange={handleChange} 
+                    className="input-field" 
+                />
+            </div>
           </div>
 
-          <div>
-            <label className="form-label">Emergency Phone (Optional)</label>
-            <input 
-                name="phone" 
-                type="tel" 
-                placeholder="+1 234 567 890" 
-                value={familyData.phone} 
-                onChange={handleChange} 
-                className="input-field" 
-            />
-          </div>
-
-          {/* --- NEW: Medical Records Section --- */}
-          {/* Reusing classes from layout.css designed for ProfilePage */}
           <div className="medical-section">
             <h3 className="section-title">Initial Health Report</h3>
-            
             <div className="medical-actions-row">
                 <label className="btn-health-upload">
                     <span>📄</span> Upload Report
@@ -194,26 +200,17 @@ const FamilyPage = () => {
                         onChange={handleReportUpload}
                     />
                 </label>
-
-                {/* Success Feedback */}
                 {reportFile && (
                     <div className="upload-success">
                         <span>✅</span> 
-                        <strong className="file-name-truncate">
-                          {reportFile.name}
-                        </strong> 
-                        <span>attached</span>
+                        <strong className="file-name-truncate">{reportFile.name}</strong> 
                     </div>
                 )}
             </div>
-            <p className="photo-hint text-left">
-                Upload past prescriptions or medical history (PDF/Images).
-            </p>
           </div>
-          {/* ----------------------------------- */}
 
           <div className="form-actions">
-            <button type="button" onClick={() => window.location.hash = "/dashboard"} className="btn-outline">Cancel</button>
+            <button type="button" onClick={() => window.location.href = "/dashboard"} className="btn-outline">Cancel</button>
             <button type="submit" className="btn" disabled={loading}>
                 {loading ? "Saving..." : "Add Member"}
             </button>
