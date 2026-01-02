@@ -1,3 +1,5 @@
+#app/schemas/doctor.py
+
 from pydantic import BaseModel
 
 class DoctorResponse(BaseModel):

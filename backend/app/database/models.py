@@ -1,3 +1,5 @@
+#app/database/models.py
+
 from sqlalchemy import Column, Integer, String, DateTime, Date
 from sqlalchemy.sql import func
 from .session import Base
@@ -54,4 +56,3 @@ class HealthReport(Base):
     file_path = Column(String, nullable=False)
     report_type = Column(String, nullable=True)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
-
