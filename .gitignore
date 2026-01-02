@@ -15,7 +15,7 @@ venv/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+npm-debug.log*
 
 # Environment files
 .env
