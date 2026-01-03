@@ -27,7 +27,7 @@ logger.info("FastAPI app started")
 app.add_middleware(
     CORSMiddleware,
     # Newly added - Allow both common Vite dev server ports
-    allow_origins=["http://localhost:5173", "http://localhost:5174"],  # React dev server
+    allow_origins=["*"],  # React dev server
     # Newly added
     allow_credentials=True,
     allow_methods=["*"],
