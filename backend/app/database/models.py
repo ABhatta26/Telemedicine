@@ -1,6 +1,6 @@
 #app/database/models.py
 
-from sqlalchemy import Column, Integer, String, DateTime, Date
+from sqlalchemy import Column, Integer, String, DateTime, Date, ForeignKey
 from sqlalchemy.sql import func
 from .session import Base
 from datetime import datetime
@@ -13,6 +13,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True, nullable=False)
     phone = Column(String(20))
     role = Column(String(32), default="user", nullable=False)
+    photo = Column(String, nullable=True)
     password_hash = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
@@ -39,7 +40,6 @@ class FamilyMember(Base):
     __tablename__ = "family_members"
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, nullable=False)
-
     name = Column(String(100), nullable=False)
     relation = Column(String(50), nullable=False)
     age = Column(Integer)
@@ -50,8 +50,10 @@ class FamilyMember(Base):
 
 class HealthReport(Base):
     __tablename__ = "health_reports"
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, index=True, nullable=False)
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    family_member_id = Column(Integer, ForeignKey("family_members.id"), nullable=True)
     file_name = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
     report_type = Column(String, nullable=True)
