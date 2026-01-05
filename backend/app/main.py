@@ -1,5 +1,3 @@
-#app/main.py
-
 from fastapi import FastAPI
 import os
 from dotenv import load_dotenv
@@ -10,6 +8,7 @@ from app.auth.routes import router as auth_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.utils.logger import setup_logger
 from app.routers.routers import router as api_router
+from app.routers.appointments import router as appointments_router
 from fastapi.staticfiles import StaticFiles
 
 
@@ -27,7 +26,7 @@ logger.info("FastAPI app started")
 app.add_middleware(
     CORSMiddleware,
     # Newly added - Allow both common Vite dev server ports
-    allow_origins=["*"],  # React dev server
+    allow_origins=["http://localhost:5173", "http://localhost:5174"],  # React dev server
     # Newly added
     allow_credentials=True,
     allow_methods=["*"],
@@ -45,6 +44,7 @@ Base.metadata.create_all(bind=engine)
 # Routers
 app.include_router(auth_router)
 app.include_router(api_router)
+app.include_router(appointments_router)
 
 
 @app.get("/")
@@ -56,3 +56,4 @@ def health():
 os.makedirs("uploads", exist_ok=True)
 
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
