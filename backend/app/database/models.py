@@ -4,6 +4,14 @@ from .session import Base
 from datetime import datetime
 from fastapi import UploadFile, File
 
+import uvicorn
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy import create_engine, Column, Integer, String, Boolean, ForeignKey, case, func
+from sqlalchemy.orm import sessionmaker, Session, declarative_base, relationship
+from sqlalchemy.sql import exists
+from pydantic import BaseModel
+from typing import List
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -67,3 +75,31 @@ class Appointment(Base):
     reason = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+class Patient(Base):
+    __tablename__ = "patients"  # Changed from _tablename_
+    id = Column(Integer, primary_key=True, index=True)
+    full_name = Column(String, index=True)
+    age = Column(Integer)
+    gender = Column(String)
+    medical_history = Column(String)
+
+    bookings = relationship("Booking", back_populates="patient")
+    payments = relationship("Payment", back_populates="patient")
+
+
+class Booking(Base):
+    __tablename__ = "bookings"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"))  # Foreign key required
+    is_active = Column(Boolean, default=False)
+    
+    patient = relationship("Patient", back_populates="bookings")
+
+class Payment(Base):
+    __tablename__ = "payments"
+    id = Column(Integer, primary_key=True, index=True)
+    patient_id = Column(Integer, ForeignKey("patients.id"))  # Foreign key required
+    is_pending = Column(Boolean, default=True)
+    
+    patient = relationship("Patient", back_populates="payments")
