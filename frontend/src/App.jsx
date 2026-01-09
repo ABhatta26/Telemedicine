@@ -11,6 +11,7 @@ import TwoFacto from "./components/common/2Facto.jsx";
 import "./styles/layout.css";
 import "./styles/base.css";
 import "./styles/variables.css";
+import DoctorProfile from "./components/Dashboard/Doctor/DoctorProfile.jsx";
 
 export default function App() {
   const { user } = useAuth();
@@ -46,6 +47,8 @@ export default function App() {
       return <FamilyComponent />;
     case "/profile":
       return <ProfileModal />;
+      case "/Dprofile":
+      return <DoctorProfile />;
     case "/2facto":
       return <TwoFacto email={user.email} onSuccess={() => window.location.hash = "/profile"} />;
     default:
