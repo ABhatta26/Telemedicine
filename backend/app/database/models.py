@@ -57,7 +57,7 @@ class HealthReport(Base):
 
 
 class Appointment(Base):
-    __tablename__ = "appointments"
+    __tablename__ = "appoint_data"
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     doctor_id = Column(Integer, ForeignKey("doctors.id"), nullable=False, index=True)
