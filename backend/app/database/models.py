@@ -11,8 +11,6 @@ from sqlalchemy.orm import sessionmaker, Session, declarative_base, relationship
 from sqlalchemy.sql import exists
 from pydantic import BaseModel
 from typing import List
-from sqlalchemy import Enum
-import enum
 
 class User(Base):
     __tablename__ = "users"
@@ -67,7 +65,7 @@ class HealthReport(Base):
 
 
 class Appointment(Base):
-    _tablename_ = "appoint_ments"
+    __tablename__ = "appoint_ments"
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     doctor_id = Column(Integer, ForeignKey("doctors.id"), nullable=False, index=True)
@@ -105,6 +103,8 @@ class Payment(Base):
     is_pending = Column(Boolean, default=True)
     
     patient = relationship("Patient", back_populates="payments")
+import enum
+from sqlalchemy import Enum, Boolean
 
 class Notification(Base):
     __tablename__ = "notifications"
