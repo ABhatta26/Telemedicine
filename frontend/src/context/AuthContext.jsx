@@ -15,9 +15,9 @@ export function AuthProvider({ children }) {
     const role = localStorage.getItem("role"); // <--- RESTORE ROLE
 
     if (token && username) {
-      setUser({
-        name: username,
-        userRole: role || "Patient", // Default to Patient if missing
+      setUser({ 
+        name: username, 
+        userRole: role || "Patient" // Default to Patient if missing
       });
     }
   }, []);
@@ -39,20 +39,19 @@ export function AuthProvider({ children }) {
     // 1. Save tokens
     localStorage.setItem("access_token", data.access_token);
     localStorage.setItem("refresh_token", data.refresh_token);
-
+    
     // 2. Save User Details
-    localStorage.setItem("username", data.user?.username || username);
-    localStorage.setItem("email", data.user?.email || "");
+    localStorage.setItem("username", username);
+    
+    // NOTE: Ensure your Backend Login API returns the 'role'. 
+    // If it doesn't, you might need to decode the JWT token to find it.
+    // For now, we assume data.role exists, or we default to "Patient".
+    const role = data.role || data.userRole || "Patient"; 
+    localStorage.setItem("userRole", role); 
 
-    // 3. Extract role from the correct path in backend response
-    // Backend returns: { user: { id, username, email, role } }
-    const role = data.user?.role || "patient";
-    localStorage.setItem("userRole", role);
-
-    // 4. Update State
+    // 3. Update State
     setUser({
-      name: data.user?.username || username,
-      email: data.user?.email,
+      name: username,
       userRole: role,
     });
   };
@@ -64,13 +63,21 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("username");
     localStorage.removeItem("email");
     localStorage.removeItem("userRole"); // <--- CLEAR ROLE
-
+    
     setUser(null);
     window.location.hash = "/login";
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider
+  value={{
+    user,
+    login,
+    logout,
+    accessToken: localStorage.getItem("access_token"),
+  }}
+>
+
       {children}
     </AuthContext.Provider>
   );

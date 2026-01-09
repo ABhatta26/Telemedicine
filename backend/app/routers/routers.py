@@ -30,6 +30,19 @@ from app.schemas.health_report import HealthReportCreate
 from app.utils.telemedicine_utils import add_health_report
 from app.schemas.patient import DashboardStats,PatientDashboardView
 
+from app.schemas.notification import NotificationResponse
+from app.utils.telemedicine_utils import (
+    get_user_notifications,
+    mark_notification_read,
+    mark_all_notifications_read,
+)
+from datetime import date
+from app.schemas.earnings import PaymentResponse, EarningsSummaryResponse
+from app.utils.telemedicine_utils import (
+    get_doctor_payments,
+    get_earnings_summary
+)
+
 
 
 router = APIRouter(
@@ -254,3 +267,66 @@ def seed_data(db: Session = Depends(get_db)):
 
     db.commit()
     return {"status": "Database seeded with 2 test patients"}
+
+
+@router.get(
+    "/doctor/notifications",
+    response_model=list[NotificationResponse]
+)
+def list_notifications(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return get_user_notifications(db, user.id)
+
+
+
+@router.patch("/doctor/notifications/{notification_id}/read")
+def read_notification(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    mark_notification_read(db, user.id, notification_id)
+    return {"message": "Notification marked as read"}
+
+@router.patch("/doctor/notifications/read-all")
+def read_all_notifications(
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    mark_all_notifications_read(db, user.id)
+    return {"message": "All notifications marked as read"}
+
+@router.get(
+    "/doctor/earnings/summary",
+    response_model=EarningsSummaryResponse
+)
+def doctor_earnings_summary(
+    from_date: date | None = Query(None),
+    to_date: date | None = Query(None),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return get_earnings_summary(
+        db=db,
+        doctor_id=user.id,
+        from_date=from_date,
+        to_date=to_date,
+    )
+@router.get(
+    "/doctor/earnings/payments",
+    response_model=list[PaymentResponse]
+)
+def doctor_payment_history(
+    from_date: date | None = Query(None),
+    to_date: date | None = Query(None),
+    db: Session = Depends(get_db),
+    user=Depends(get_current_user),
+):
+    return get_doctor_payments(
+        db=db,
+        doctor_id=user.id,
+        from_date=from_date,
+        to_date=to_date,
+    )

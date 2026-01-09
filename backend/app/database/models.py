@@ -11,6 +11,8 @@ from sqlalchemy.orm import sessionmaker, Session, declarative_base, relationship
 from sqlalchemy.sql import exists
 from pydantic import BaseModel
 from typing import List
+from sqlalchemy import Enum
+import enum
 
 class User(Base):
     __tablename__ = "users"
@@ -65,7 +67,7 @@ class HealthReport(Base):
 
 
 class Appointment(Base):
-    __tablename__ = "appointments"
+    __tablename__ = "appoint_ments"
     id = Column(Integer, primary_key=True, index=True)
     patient_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
     doctor_id = Column(Integer, ForeignKey("doctors.id"), nullable=False, index=True)
@@ -103,3 +105,39 @@ class Payment(Base):
     is_pending = Column(Boolean, default=True)
     
     patient = relationship("Patient", back_populates="payments")
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    type = Column(String(32), nullable=False)
+    message = Column(Text, nullable=False)
+    redirect_to = Column(String(255), nullable=True)
+
+    is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class PaymentStatus(enum.Enum):
+    pending = "pending"
+    completed = "completed"
+
+
+class DoctorPayment(Base):
+    __tablename__ = "doctor_payments"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    doctor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    patient_name = Column(String(100), nullable=False)
+
+    amount = Column(Integer, nullable=False)
+    method = Column(String(50), default="UPI")
+
+    status = Column(Enum(PaymentStatus), default=PaymentStatus.pending)
+
+    appointment_id = Column(Integer, nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
